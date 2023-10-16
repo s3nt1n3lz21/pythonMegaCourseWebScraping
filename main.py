@@ -1,5 +1,10 @@
 import requests
 import selectorlib
+import smtplib, ssl
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 URL = "https://programmer100.pythonanywhere.com/tours/"
 HEADERS = {
@@ -14,8 +19,21 @@ def extract(source):
     value = extractor.extract(source)["tours"]
     return value
 
-def send_email():
-    print("Email was sent!")
+def send_email(message):
+    host = "smtp.gmail.com"
+    port = 465
+
+    username = os.environ.get("EMAIL_SENDER")
+    password = os.environ.get("EMAIL_PASSWORD")
+
+    receiver = os.environ.get("EMAIL_RECEIVER")
+    context = ssl.create_default_context()
+
+    with smtplib.SMTP_SSL(host, port, context=context) as server:
+        server.login(username, password)
+        server.sendmail(username, receiver, message)
+        print("Email sent")
+
 def store(extracted):
     with open("data.txt", "a") as file:
         file.write(extracted + "\n")
@@ -36,4 +54,4 @@ if __name__ == '__main__':
         content = read()
         if extracted not in content:
             store(extracted)
-            send_email()
+            send_email("A new event was found!")
