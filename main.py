@@ -3,6 +3,7 @@ import selectorlib
 import smtplib, ssl
 import os
 from dotenv import load_dotenv
+import time
 
 load_dotenv()
 
@@ -47,11 +48,13 @@ def read():
             return ""
 
 if __name__ == '__main__':
-    scraped = scrape(URL)
-    extracted = extract(scraped)
-    print(extracted)
-    if extracted != "No upcoming tours":
-        content = read()
-        if extracted not in content:
-            store(extracted)
-            send_email("A new event was found!")
+    while True:
+        scraped = scrape(URL)
+        extracted = extract(scraped)
+        print(extracted)
+        if extracted != "No upcoming tours":
+            content = read()
+            if extracted not in content:
+                store(extracted)
+                send_email("A new event was found!")
+        time.sleep(2)
